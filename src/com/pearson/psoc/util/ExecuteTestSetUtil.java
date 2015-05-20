@@ -56,7 +56,7 @@ public class ExecuteTestSetUtil {
 		return status;
 	}
 	
-	public static String getTestCaseName(String rootFolder, String word) throws IOException {
+	public static void getTestCasesDetails(String rootFolder) throws IOException {
 		
 		File classFilesFolder = new File(rootFolder);
     	
@@ -84,9 +84,8 @@ public class ExecuteTestSetUtil {
 		    try {
 		        String line = rdr.readLine();
 		        while(line != null) {
-			        if (line.indexOf(word) >= 0) {
-			        	int lineOfWorkItem = rdr.getLineNumber();
-			        	return getLine(rdr, lineOfWorkItem+2);
+			        if (line.indexOf("WorkItem") >= 0) {
+			        	System.out.println(classFile.getName() + "\t" + getTestCaseId(rdr, line) + "\t" + getFunctionName(rdr));
 			        }
 			        line = rdr.readLine();
 		        }
@@ -94,19 +93,29 @@ public class ExecuteTestSetUtil {
 		        rdr.close();
 		    }
     	}
-	    return null;
 	}
 	
-	public static String getLine(LineNumberReader rdr, int lineNumber) throws IOException {
+	public static String getFunctionName(LineNumberReader rdr) throws IOException {
 		String line = "";
 	    try {
 	        line = rdr.readLine();
-	        line = rdr.readLine();
+	        while(null != line && !line.trim().startsWith("public")) {
+	        	line = rdr.readLine();
+	        } 
+	        line = line.replace("public void", "").trim().replace("()", "");
+	    } finally {
+	        
+	    }
+	    return line;
+	}
+	
+	public static String getTestCaseId(LineNumberReader rdr, String line) throws IOException {
+	    try {
 	        if(null != line) {
-	        	line = line.replace("public void", "").trim().replace("()", "");
+	        	line = "TC"+line.replace("[WorkItem(", "").trim().replace(")]", "").trim();
 	        }
 	    } finally {
-	        rdr.close();
+	        
 	    }
 	    return line;
 	}
