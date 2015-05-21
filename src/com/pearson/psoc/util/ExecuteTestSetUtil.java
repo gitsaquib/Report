@@ -25,7 +25,6 @@ public class ExecuteTestSetUtil {
 	public static String callCommandPrompt(String debugFolderPath, String msTestExePath, String testSettingsPath, String testMethodName, String dllName) {
 		String status = "Inconclusive";
 		Runtime rt = Runtime.getRuntime();
-		System.out.println(new File("test.bat").getAbsolutePath());
 		String[] commands = {"test.bat", debugFolderPath, msTestExePath, testSettingsPath, testMethodName, dllName};
 		Process proc = null;
 		try {
@@ -132,6 +131,13 @@ public class ExecuteTestSetUtil {
 		}
 		return false;
 	}
+	
+	public static void restartSeetest(String serviceName) throws Exception {
+		killProcess(serviceName.substring(serviceName.lastIndexOf("\\")+1));
+		Thread.sleep(10000);
+		startProcess(serviceName);
+	}
+	
 
 	public static void killProcess(String serviceName) throws Exception {
 		Runtime.getRuntime().exec(KILL + serviceName);
