@@ -3,6 +3,7 @@ package com.pearson.psoc.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.LineNumberReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -146,8 +148,9 @@ public class ExecuteTestSetUtil {
 	
 	public static void restartSeetest(String serviceName) throws Exception {
 		killProcess(serviceName.substring(serviceName.lastIndexOf("\\")+1));
-		Thread.sleep(10000);
+		Thread.sleep(30000);
 		startProcess(serviceName);
+		Thread.sleep(30000);
 	}
 	
 
@@ -158,12 +161,12 @@ public class ExecuteTestSetUtil {
 	public static void startProcess(String serviceName) throws IOException {
 		Process process = new ProcessBuilder(serviceName).start();
 		InputStream is = process.getInputStream();
-		InputStreamReader isr = new InputStreamReader(is);
+		/*InputStreamReader isr = new InputStreamReader(is);
 		BufferedReader br = new BufferedReader(isr);
 		String line;
 		while ((line = br.readLine()) != null) {
 			System.out.println(line);
-		}
+		}*/
 	}
 	
 	public static Map<String, String> readInputFile(String inputSheet) throws IOException {
@@ -180,4 +183,30 @@ public class ExecuteTestSetUtil {
         return testCases;
 	}
 
+	public static Configuration readConfigFile(){
+    	Properties prop = new Properties();
+    	File file = new File("config.properties");
+    	InputStream stream = null;
+		try {
+			stream = new FileInputStream(file);
+		} catch (FileNotFoundException e1) {
+			System.out.println("1. Unable to load config properties");
+		}
+    	try {
+    		Configuration configuration = new Configuration();
+			prop.load(stream);
+			configuration.setDllHome(prop.getProperty("DLLHOME"));
+			configuration.setDllName(prop.getProperty("DLLNAME"));
+			configuration.setMsTest(prop.getProperty("MSTEST"));
+			configuration.setRunCount(prop.getProperty("RUNCOUNT"));
+			configuration.setSeeTest(prop.getProperty("SEETEST"));
+			configuration.setTestSettings(prop.getProperty("TESTSETTINGS"));
+			configuration.setInputFile(prop.getProperty("INPUTFILE"));
+			configuration.setRestartSeetest(prop.getProperty("RESTARTSEETEST"));
+			return configuration;
+    	} catch(Exception e) {
+    		System.out.println("2. Unable to load config properties");
+    	}
+    	return null;
+	}
 }
