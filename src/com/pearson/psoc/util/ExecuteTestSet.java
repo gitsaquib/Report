@@ -16,7 +16,7 @@ public class ExecuteTestSet {
 
 	public static void main(String args[]) {
 		//String testMethodName = ExecuteTestSetUtil.getTestCaseName("D:\\Project\\PSoC\\code\\WinPSCAutomation\\Pearson.PSCWinAutomation.K1App\\", "22472");
-		Map<String, String> testCases = new HashMap<String, String>();
+		/*Map<String, String> testCases = new HashMap<String, String>();
 		try {
 			testCases = ExecuteTestSetUtil.readInputFile("D:\\Input\\Input.xls");
 		} catch (IOException e1) {
@@ -50,7 +50,11 @@ public class ExecuteTestSet {
 					e.printStackTrace();
 				}
 			}
+		}*/
+		try {
+			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.212App");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		//ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.K1App");
 	}
 }

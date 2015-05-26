@@ -84,7 +84,16 @@ public class ExecuteTestSetUtil {
 		        String line = rdr.readLine();
 		        while(line != null) {
 			        if (line.indexOf("WorkItem") >= 0) {
-			        	System.out.println(classFile.getName() + "\t" + getTestCaseId(rdr, line) + "\t" + getFunctionName(rdr));
+			        	String testCase = getTestCaseId(rdr, line);
+			        	String functionName = getFunctionName(rdr);
+			        	if(testCase.contains(",")) {
+			        		String testCases[] = testCase.split(",");
+			        		for(String caseId:testCases) {
+			        			System.out.println(classFile.getName() + "\t" + caseId + "\t" + functionName);
+			        		}
+			        	} else {
+			        		System.out.println(classFile.getName() + "\t" + testCase + "\t" + functionName);
+			        	}
 			        }
 			        line = rdr.readLine();
 		        }
@@ -111,7 +120,10 @@ public class ExecuteTestSetUtil {
 	public static String getTestCaseId(LineNumberReader rdr, String line) throws IOException {
 	    try {
 	        if(null != line) {
-	        	line = "TC"+line.replace("[WorkItem(", "").trim().replace(")]", "").trim();
+	        	line = line.trim().replace("[", "").replaceAll("WorkItem\\(", "TC").replaceAll("\\)", "").replace("]", "");
+	        	/*} else {
+	        		line = "TC"+line.replace("[WorkItem(", "").trim().replace(")]", "").trim();
+	        	}*/
 	        }
 	    } finally {
 	        
