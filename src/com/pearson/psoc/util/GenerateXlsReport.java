@@ -24,12 +24,12 @@ import org.jsoup.select.Elements;
 public class GenerateXlsReport {
 	
 	public static void main(String[] args) throws IOException {
-		File file  = new File("D:\\SeetestXlsReport\\AutomationRegressionReport_1.6.0.617_05272015.xls");
+		File file  = new File("D:\\SeetestXlsReport\\AutomationRegressionReport_1.6.0.617_Nav.xls");
 		file.createNewFile();
 		OutputStream out = new FileOutputStream(file);
 		short columnIndex = 2;
     	short columnWidth = 10000;
-    	File htmlsFolder = new File("D:\\Seetest Reports\\05-27\\");
+    	File htmlsFolder = new File("D:\\Seetest Reports\\05-29\\");
     	
     	FilenameFilter fileNameFilter = new FilenameFilter() {
     		   
@@ -138,23 +138,97 @@ public class GenerateXlsReport {
 				System.out.println(cellText);
 				int firstIndex = cellText.indexOf(":");
 				String testCaseId = cellText.substring(0, firstIndex);
-				String testCaseDesc = cellText.substring(firstIndex+1);
-				String testCaseStatus = rowItems.get(2).text();
-				String testCaseExecutionStartDate = rowItems.get(3).text();
-				String testCaseRunDuration = rowItems.get(4).text();
-				
-				int testCaseToBeAdded = testCaseShouldBeAdded(testCasesMap, testCaseId);
-				if(testCaseToBeAdded == -1) {
+				if(testCaseId.contains("&")) {
+					String testCasesIds[] = testCaseId.split("&");
+					for(String testId:testCasesIds) {
+						testId = testId.trim();
+						if(testId.contains(",")) {
+							String testds2[] = testId.split(",");
+							for(String testId1:testds2) {
+								testId1 = testId1.trim();
+								String testCaseDesc = cellText.substring(firstIndex+1);
+								String testCaseStatus = rowItems.get(2).text();
+								String testCaseExecutionStartDate = rowItems.get(3).text();
+								String testCaseRunDuration = rowItems.get(4).text();
+								
+								int testCaseToBeAdded = testCaseShouldBeAdded(testCasesMap, testId1);
+								if(testCaseToBeAdded == -1) {
+									
+									rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+											testId1, testCaseDesc, testCaseStatus,
+											testCaseExecutionStartDate, testCaseRunDuration);
+								} else if(testCaseToBeAdded > 0) {
+									sheet.removeRow(sheet.getRow(testCaseToBeAdded));
+									rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+											testId1, testCaseDesc, testCaseStatus,
+											testCaseExecutionStartDate, testCaseRunDuration);
+									
+								}
+							}
+						} else {
+							String testCaseDesc = cellText.substring(firstIndex+1);
+							String testCaseStatus = rowItems.get(2).text();
+							String testCaseExecutionStartDate = rowItems.get(3).text();
+							String testCaseRunDuration = rowItems.get(4).text();
+							
+							int testCaseToBeAdded = testCaseShouldBeAdded(testCasesMap, testId);
+							if(testCaseToBeAdded == -1) {
+								
+								rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+										testId, testCaseDesc, testCaseStatus,
+										testCaseExecutionStartDate, testCaseRunDuration);
+							} else if(testCaseToBeAdded > 0) {
+								sheet.removeRow(sheet.getRow(testCaseToBeAdded));
+								rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+										testId, testCaseDesc, testCaseStatus,
+										testCaseExecutionStartDate, testCaseRunDuration);
+								
+							}
+						}
+					}
+				} else if(testCaseId.contains(",")) {
+					String testCasesIds[] = testCaseId.split(",");
+					for(String testId:testCasesIds) {
+						testId = testId.trim();
+						String testCaseDesc = cellText.substring(firstIndex+1);
+						String testCaseStatus = rowItems.get(2).text();
+						String testCaseExecutionStartDate = rowItems.get(3).text();
+						String testCaseRunDuration = rowItems.get(4).text();
+						
+						int testCaseToBeAdded = testCaseShouldBeAdded(testCasesMap, testId);
+						if(testCaseToBeAdded == -1) {
+							
+							rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+									testId, testCaseDesc, testCaseStatus,
+									testCaseExecutionStartDate, testCaseRunDuration);
+						} else if(testCaseToBeAdded > 0) {
+							sheet.removeRow(sheet.getRow(testCaseToBeAdded));
+							rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+									testId, testCaseDesc, testCaseStatus,
+									testCaseExecutionStartDate, testCaseRunDuration);
+							
+						}
+					}
+				} else {
+					testCaseId = testCaseId.trim();
+					String testCaseDesc = cellText.substring(firstIndex+1);
+					String testCaseStatus = rowItems.get(2).text();
+					String testCaseExecutionStartDate = rowItems.get(3).text();
+					String testCaseRunDuration = rowItems.get(4).text();
 					
-					rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
-							testCaseId, testCaseDesc, testCaseStatus,
-							testCaseExecutionStartDate, testCaseRunDuration);
-				} else if(testCaseToBeAdded > 0) {
-					sheet.removeRow(sheet.getRow(testCaseToBeAdded));
-					rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
-							testCaseId, testCaseDesc, testCaseStatus,
-							testCaseExecutionStartDate, testCaseRunDuration);
-					
+					int testCaseToBeAdded = testCaseShouldBeAdded(testCasesMap, testCaseId);
+					if(testCaseToBeAdded == -1) {
+						
+						rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+								testCaseId, testCaseDesc, testCaseStatus,
+								testCaseExecutionStartDate, testCaseRunDuration);
+					} else if(testCaseToBeAdded > 0) {
+						sheet.removeRow(sheet.getRow(testCaseToBeAdded));
+						rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+								testCaseId, testCaseDesc, testCaseStatus,
+								testCaseExecutionStartDate, testCaseRunDuration);
+						
+					}
 				}
 			}
 		}
