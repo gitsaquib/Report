@@ -43,8 +43,13 @@ public class ExecuteTestSet {
 				}
 			}
 		}*/
-		try {
+		/*try {
 			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.212App");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
+		try {
+			ExecuteTestSetUtil.getLoginDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.212App");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

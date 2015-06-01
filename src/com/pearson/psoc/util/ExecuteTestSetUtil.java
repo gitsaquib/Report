@@ -86,7 +86,7 @@ public class ExecuteTestSetUtil {
 		        String line = rdr.readLine();
 		        while(line != null) {
 			        if (line.indexOf("WorkItem") >= 0) {
-			        	String testCase = getTestCaseId(rdr, line);
+			        	String testCase = getTestCaseId(line);
 			        	String functionName = getFunctionName(rdr);
 			        	if(testCase.contains(",")) {
 			        		String testCases[] = testCase.split(",");
@@ -105,6 +105,78 @@ public class ExecuteTestSetUtil {
     	}
 	}
 	
+	public static void getLoginDetails(String rootFolder) throws IOException {
+		
+		File classFilesFolder = new File(rootFolder);
+    	
+    	FilenameFilter fileNameFilter = new FilenameFilter() {
+    		   
+            @Override
+            public boolean accept(File dir, String name) {
+               if(name.lastIndexOf('.')>0)
+               {
+                  int lastIndex = name.lastIndexOf('.');
+                  String str = name.substring(lastIndex);
+                  if(str.equals(".cs"))
+                  {
+                     return true;
+                  }
+               }
+               return false;
+            }
+        };
+        
+    	File classFiles[] = classFilesFolder.listFiles(fileNameFilter);
+		
+    	for (File classFile:classFiles) {
+		    LineNumberReader rdr = new LineNumberReader(new FileReader(classFile));
+		    try {
+		        String line = rdr.readLine();
+		        while(line != null) {
+			        if (line.indexOf("Login.GetLogin") >= 0) {
+			        	String testCase = getTestCaseId(getTestCaseId(classFile, rdr.getLineNumber()));
+			        	if(testCase.contains(",")) {
+			        		String testCases[] = testCase.split(",");
+			        		for(String caseId:testCases) {
+			        			System.out.println(classFile.getName() + "\t" + caseId + "\t" + line.substring(line.indexOf("\"")+1, line.lastIndexOf("\"")));
+			        		}
+			        	} else {
+			        		System.out.println(classFile.getName() + "\t" + testCase + "\t" + line.substring(line.indexOf("\"")+1, line.lastIndexOf("\"")));
+			        	}
+			        }
+			        line = rdr.readLine();
+		        }
+		    } finally {
+		        rdr.close();
+		    }
+    	}
+	}
+	
+	private static String getTestCaseId(File classFile, int lineNumberOfLogin) throws IOException {
+		LineNumberReader rdr = new LineNumberReader(new FileReader(classFile));
+	    try {
+	    	Map<Integer, String> lines = new HashMap<Integer, String>();
+	    	String line = rdr.readLine();
+	        while(line != null && rdr.getLineNumber() < lineNumberOfLogin) {
+	        	lines.put(rdr.getLineNumber(), line);
+		        line = rdr.readLine();
+	        }
+	        boolean testIdNotFound = true;
+	        while(testIdNotFound) {
+	        	String lineFromMap = lines.get(lineNumberOfLogin);
+	        	if(null != lineFromMap && lineFromMap.contains("WorkItem")) {
+	        		testIdNotFound = false;
+	        		return lineFromMap;
+	        	} else {
+	        		lineNumberOfLogin--;
+	        	}
+	        }
+	    } finally {
+	        rdr.close();
+	    }
+		return "";
+	}
+	
 	public static String getFunctionName(LineNumberReader rdr) throws IOException {
 		String line = "";
 	    try {
@@ -119,13 +191,10 @@ public class ExecuteTestSetUtil {
 	    return line;
 	}
 	
-	public static String getTestCaseId(LineNumberReader rdr, String line) throws IOException {
+	public static String getTestCaseId(String line) throws IOException {
 	    try {
 	        if(null != line) {
 	        	line = line.trim().replace("[", "").replaceAll("WorkItem\\(", "TC").replaceAll("\\)", "").replace("]", "");
-	        	/*} else {
-	        		line = "TC"+line.replace("[WorkItem(", "").trim().replace(")]", "").trim();
-	        	}*/
 	        }
 	    } finally {
 	        
