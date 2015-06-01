@@ -44,7 +44,7 @@ public class ExecuteTestSet {
 			}
 		}*/
 		try {
-			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\WinPSCAutomation\\Pearson.PSCWinAutomation.212App");
+			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.212App");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
