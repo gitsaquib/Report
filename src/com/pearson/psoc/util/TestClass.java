@@ -56,11 +56,12 @@ public class TestClass {
     	//updateTestCaseResults(restApi);
     	//updateTestSet(restApi);
     	//retrieveTestSets(restApi);
-    	retrieveTestSetsResult(restApi);
+    	//retrieveTestSetsResult(restApi);
     	//retrieveTestCases(restApi);
     	//retrieveDefects(restApi);
     	//readTabDelimitedFileAddTestCaseToTestFolder();
     	//retrieveTestResults(restApi);
+    	getIteration(restApi);
     	restApi.close();
     	//postJenkinsJob();
     }
@@ -150,6 +151,59 @@ public class TestClass {
         }
     }
     
+    private static void getIteration(RallyRestApi restApi) throws IOException, ParseException {
+    	QueryRequest iterationRequest = new QueryRequest("Iteration");
+    	
+    	iterationRequest.setProject("/project/21028059357"); //2-12
+    	//iterationRequest.setProject("/project/23240411122"); //K1
+        
+        QueryResponse iterationResponse = restApi.query(iterationRequest);
+        JsonArray iterationArray = iterationResponse.getResults();
+        QueryFilter queryFilter = null;
+        for(int i=0; i<iterationArray.size(); i++) {
+    		JsonElement elements =  iterationArray.get(i);
+    		JsonObject object = elements.getAsJsonObject();
+    		String name = object.get("Name").getAsString();
+    		JsonObject projectObj = object.get("Project").getAsJsonObject();
+    		String ref = object.get("_ref").getAsString();
+    		ref = ref.substring(ref.indexOf("/iteration/"));
+    		ref = ref.replace(".js", "");
+    		String project = projectObj.get("_refObjectName").getAsString();
+    		DateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd");
+    		String strStartDate = object.get("StartDate").getAsString().substring(0, 10);
+            Date startDate = (Date) formatter1.parse(strStartDate);
+            String strEndDate = object.get("EndDate").getAsString().substring(0, 10);
+            Date endDate = (Date) formatter1.parse(strEndDate);
+    		Date dateNow = new Date();
+    		if(dateNow.after(startDate) && dateNow.before(endDate)) {
+    			System.out.println(ref+"\t"+name+"\t"+ project+"\t"+startDate +"\t"+ endDate);
+    			if(queryFilter == null) {
+    				queryFilter = new QueryFilter("Iteration", "=", ref);
+    			} else {
+    				queryFilter = queryFilter.or(new QueryFilter("Iteration", "=", ref));
+    			}
+    		}
+    	}
+        QueryRequest testSetRequest = new QueryRequest("TestSet");
+        testSetRequest.setQueryFilter(queryFilter);
+        String wsapiVersion = "1.43";
+        restApi.setWsapiVersion(wsapiVersion);
+    	
+        testSetRequest.setProject("/project/21028059357"); //2-12
+        //testSetRequest.setProject("/project/23240411122"); //K1
+        
+    	QueryResponse testSetQueryResponse = restApi.query(testSetRequest);
+        List<String> testSetList = new ArrayList<String>();
+        for (int i=0; i<testSetQueryResponse.getResults().size();i++){
+            JsonObject testSetJsonObject = testSetQueryResponse.getResults().get(i).getAsJsonObject();
+            String testSetId = testSetJsonObject.get("FormattedID").getAsString();
+            String testSetName = testSetJsonObject.get("Name").getAsString();
+            System.out.println(testSetId + "\t" + testSetName);
+            testSetList.add(testSetId);
+        }
+        System.out.println(testSetList);
+    }
+    
     private static void updateTestCase(RallyRestApi restApi, String testSet, String testCase, String status) throws IOException {
     	
     	QueryRequest userRequest = new QueryRequest("User");
@@ -207,7 +261,7 @@ public class TestClass {
         String wsapiVersion = "1.43";
         restApi.setWsapiVersion(wsapiVersion);
 
-        testSetRequest.setFetch(new Fetch(new String[] {"Name", "Description", "TestCases", "Results", "FormattedID", "LastVerdict", "LastBuild", "LastRun", "Priority", "Method"}));
+        testSetRequest.setFetch(new Fetch(new String[] {"Name", "Iteration", "Description", "TestCases", "Results", "FormattedID", "LastVerdict", "LastBuild", "LastRun", "Priority", "Method"}));
         //String testSetsString = "TS755,TS756,TS757,TS758,TS759,TS760,TS761,TS762,TS763,TS764,TS765";
         String testSetsString = "TS745,TS741,TS752";
         String[] testSets = testSetsString.split(",");
@@ -223,6 +277,7 @@ public class TestClass {
             int numberOfTestCases = testSetJsonObject.get("TestCases").getAsJsonArray().size();
             String testSetId = testSetJsonObject.get("FormattedID").getAsString();
             String testSetName = testSetJsonObject.get("Name").getAsString();
+            JsonObject iteration = testSetJsonObject.get("Iteration").getAsJsonObject();
             if(numberOfTestCases>0){
                   for (int j=0;j<numberOfTestCases;j++){
                 	  	JsonObject jsonObject = testSetJsonObject.get("TestCases").getAsJsonArray().get(j).getAsJsonObject();
@@ -270,7 +325,7 @@ public class TestClass {
         }
     }
     
-    private static void retrieveTestSetsResult(RallyRestApi restApi)
+    private static void retrieveTestSetsResult(RallyRestApi restApi, String testSetsString)
 			throws IOException, URISyntaxException, ParseException {
 
         QueryRequest testSetRequest = new QueryRequest("TestSet");
@@ -281,13 +336,14 @@ public class TestClass {
         restApi.setWsapiVersion(wsapiVersion);
 
         testSetRequest.setFetch(new Fetch(new String[] {"Name", "TestCases", "Results", "FormattedID", "LastVerdict", "LastBuild", "LastRun", "Priority", "Method"}));
-        String testSetsString = "TS752,TS745,TS741";
         String[] testSets = testSetsString.split(",");
-        QueryFilter query = new QueryFilter("FormattedID", "=", "TS0");
-        for(String testSet:testSets) {
-        	query = query.or(new QueryFilter("FormattedID", "=", testSet));
+        QueryFilter queryFilter = new QueryFilter("TestSet.FormattedID", "=", testSets[0]);
+        int q = 1;
+        while(testSets.length > q) {
+        	queryFilter = queryFilter.or(new QueryFilter("TestSet.FormattedID", "=", testSets[q]));
+        	q++;
         }
-        testSetRequest.setQueryFilter(query);
+        testSetRequest.setQueryFilter(queryFilter);
         QueryResponse testSetQueryResponse = restApi.query(testSetRequest);
         int ij=1;
         for (int i=0; i<testSetQueryResponse.getResults().size();i++){
