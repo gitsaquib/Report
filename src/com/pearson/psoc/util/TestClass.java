@@ -52,6 +52,9 @@ import com.rallydev.rest.util.QueryFilter;
 public class TestClass {
     public static void main(String[] args) throws URISyntaxException, IOException, ParseException {
 
+    	//2-12: 21028059357
+        //K1: 23240411122
+    	
     	RallyRestApi restApi = loginRally(); 
     	//updateTestCaseResults(restApi);
     	//updateTestSet(restApi);
@@ -60,14 +63,15 @@ public class TestClass {
     	//retrieveTestCases(restApi);
     	//retrieveDefects(restApi);
     	//readTabDelimitedFileAddTestCaseToTestFolder();
-    	//retrieveTestResults(restApi);
-    	getIteration(restApi);
+    	retrieveTestResults(restApi);
+    	//getIteration(restApi, "21028059357");
+    	//getIteration(restApi, "23240411122");
     	restApi.close();
     	//postJenkinsJob();
     }
     
     private static void updateTestCaseResults(RallyRestApi restApi) throws IOException {
-    	Scanner sc=new Scanner(new FileReader("C:\\Users\\msaqib\\Downloads\\529-4.txt"));
+    	Scanner sc=new Scanner(new FileReader("D:\\SeetestXlsReport\\Results\\Result_v3.txt"));
         while (sc.hasNextLine()){
         	String words[] = sc.nextLine().split("\t");
             updateTestCase(restApi, words[0], words[1], words[2]);
@@ -151,24 +155,19 @@ public class TestClass {
         }
     }
     
-    private static void getIteration(RallyRestApi restApi) throws IOException, ParseException {
+    private static void getIteration(RallyRestApi restApi, String projectId) throws IOException, ParseException {
     	QueryRequest iterationRequest = new QueryRequest("Iteration");
-    	
-    	iterationRequest.setProject("/project/21028059357"); //2-12
-    	//iterationRequest.setProject("/project/23240411122"); //K1
-        
+    	iterationRequest.setProject("/project/"+projectId);
+    	iterationRequest.setLimit(2000);
         QueryResponse iterationResponse = restApi.query(iterationRequest);
         JsonArray iterationArray = iterationResponse.getResults();
         QueryFilter queryFilter = null;
         for(int i=0; i<iterationArray.size(); i++) {
     		JsonElement elements =  iterationArray.get(i);
     		JsonObject object = elements.getAsJsonObject();
-    		String name = object.get("Name").getAsString();
-    		JsonObject projectObj = object.get("Project").getAsJsonObject();
     		String ref = object.get("_ref").getAsString();
     		ref = ref.substring(ref.indexOf("/iteration/"));
     		ref = ref.replace(".js", "");
-    		String project = projectObj.get("_refObjectName").getAsString();
     		DateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd");
     		String strStartDate = object.get("StartDate").getAsString().substring(0, 10);
             Date startDate = (Date) formatter1.parse(strStartDate);
@@ -176,7 +175,6 @@ public class TestClass {
             Date endDate = (Date) formatter1.parse(strEndDate);
     		Date dateNow = new Date();
     		if(dateNow.after(startDate) && dateNow.before(endDate)) {
-    			System.out.println(ref+"\t"+name+"\t"+ project+"\t"+startDate +"\t"+ endDate);
     			if(queryFilter == null) {
     				queryFilter = new QueryFilter("Iteration", "=", ref);
     			} else {
@@ -184,24 +182,32 @@ public class TestClass {
     			}
     		}
     	}
-        QueryRequest testSetRequest = new QueryRequest("TestSet");
-        testSetRequest.setQueryFilter(queryFilter);
-        String wsapiVersion = "1.43";
-        restApi.setWsapiVersion(wsapiVersion);
-    	
-        testSetRequest.setProject("/project/21028059357"); //2-12
-        //testSetRequest.setProject("/project/23240411122"); //K1
-        
-    	QueryResponse testSetQueryResponse = restApi.query(testSetRequest);
-        List<String> testSetList = new ArrayList<String>();
-        for (int i=0; i<testSetQueryResponse.getResults().size();i++){
-            JsonObject testSetJsonObject = testSetQueryResponse.getResults().get(i).getAsJsonObject();
-            String testSetId = testSetJsonObject.get("FormattedID").getAsString();
-            String testSetName = testSetJsonObject.get("Name").getAsString();
-            System.out.println(testSetId + "\t" + testSetName);
-            testSetList.add(testSetId);
+        if(queryFilter != null) {
+	        QueryRequest testSetRequest = new QueryRequest("TestSet");
+	        testSetRequest.setQueryFilter(queryFilter);
+	        String wsapiVersion = "1.43";
+	        restApi.setWsapiVersion(wsapiVersion);
+	        testSetRequest.setProject("/project/"+projectId);
+	        testSetRequest.setScopedDown(true);
+	    	QueryResponse testSetQueryResponse = restApi.query(testSetRequest);
+	        List<String> iosTestSetList = new ArrayList<String>();
+	        List<String> winTestSetList = new ArrayList<String>();
+	        for (int i=0; i<testSetQueryResponse.getResults().size();i++){
+	            JsonObject testSetJsonObject = testSetQueryResponse.getResults().get(i).getAsJsonObject();
+	            String testSetId = testSetJsonObject.get("FormattedID").getAsString();
+	            String testSetName = testSetJsonObject.get("Name").getAsString();
+	            if(testSetName.toUpperCase().contains("EOS")) {
+	            	if(testSetName.toUpperCase().contains("WIN")) {
+	            		winTestSetList.add(testSetId);
+	            	} else {
+	            		iosTestSetList.add(testSetId);
+	            	}
+	            }
+	            
+	        }
+	        System.out.println(iosTestSetList);
+	        System.out.println(winTestSetList);
         }
-        System.out.println(testSetList);
     }
     
     private static void updateTestCase(RallyRestApi restApi, String testSet, String testCase, String status) throws IOException {
@@ -233,8 +239,8 @@ public class TestClass {
         if(null != testCaseRef && !testCaseRef.equals("")){
 	        JsonObject newTestCaseResult = new JsonObject();
 	        newTestCaseResult.addProperty("Verdict", status);
-	        newTestCaseResult.addProperty("Date", "2015-05-29T11:52:00.000Z");
-	        newTestCaseResult.addProperty("Build", "1.6.0.617");
+	        newTestCaseResult.addProperty("Date", "2015-06-11T18:30:00.000Z");
+	        newTestCaseResult.addProperty("Build", "1.6.0.826");
 	        newTestCaseResult.addProperty("TestCase", testCaseRef);
 	        newTestCaseResult.addProperty("Tester", userRef);
 	        newTestCaseResult.addProperty("TestSet", testSetRef);
@@ -263,7 +269,7 @@ public class TestClass {
 
         testSetRequest.setFetch(new Fetch(new String[] {"Name", "Iteration", "Description", "TestCases", "Results", "FormattedID", "LastVerdict", "LastBuild", "LastRun", "Priority", "Method"}));
         //String testSetsString = "TS755,TS756,TS757,TS758,TS759,TS760,TS761,TS762,TS763,TS764,TS765";
-        String testSetsString = "TS745,TS741,TS752";
+        String testSetsString = "TS790,TS798,TS799,TS800,TS801";
         String[] testSets = testSetsString.split(",");
         QueryFilter query = new QueryFilter("FormattedID", "=", "TS0");
         for(String testSet:testSets) {
@@ -379,10 +385,10 @@ public class TestClass {
             return null;
     }
     
-    private static void retrieveTestResults(RallyRestApi restApi) throws IOException {
+    private static void retrieveTestResults(RallyRestApi restApi) throws IOException, ParseException {
     	QueryRequest testCaseResultsRequest = new QueryRequest("TestCaseResult");
         testCaseResultsRequest.setFetch(new Fetch("Build","TestCase","TestSet", "Verdict","FormattedID", "Date"));
-        String testSetsString = "TS745,TS741,TS752";
+        String testSetsString = "TS791,TS792,TS795,TS790,TS794,TS796,TS797,TS798,TS799,TS800,TS801";
         String[] testSets = testSetsString.split(",");
         QueryFilter query = new QueryFilter("TestSet.FormattedID", "=", "TS0");
         for(String testSet:testSets) {
@@ -395,21 +401,45 @@ public class TestClass {
         int numberTestCaseResults = array.size();
         int pass = 0, fail = 0, inconclusive = 0, blocked = 0, error = 0;
         if(numberTestCaseResults >0) {
+        	List<TestResult> testResults = new ArrayList<TestResult>();
         	for(int i=0; i<numberTestCaseResults; i++) {
+        		TestResult testResult = new TestResult();
         		String verdict = array.get(i).getAsJsonObject().get("Verdict").getAsString();
-        		JsonObject jsonObj = array.get(i).getAsJsonObject().get("TestSet").getAsJsonObject();
-        		if(verdict.equalsIgnoreCase("error")) {
-        			error++;
-        		} else if(verdict.equalsIgnoreCase("pass")) {
-        			pass++;
-        		} else if(verdict.equalsIgnoreCase("fail")) {
-        			fail++;
-        		} else if(verdict.equalsIgnoreCase("inconclusive")) {
-        			inconclusive++;
-        		} else if(verdict.equalsIgnoreCase("blocked")) {
-        			blocked++;
+        		DateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd");
+        		String strDate = array.get(i).getAsJsonObject().get("Date").getAsString().substring(0, 10);
+        		int hour = Integer.parseInt(array.get(i).getAsJsonObject().get("Date").getAsString().substring(11, 13));
+        		int min = Integer.parseInt(array.get(i).getAsJsonObject().get("Date").getAsString().substring(14, 16));
+                Date date = (Date) formatter1.parse(strDate);
+                date.setHours(hour);
+                date.setMinutes(min);
+        		JsonObject testSetJsonObj = array.get(i).getAsJsonObject().get("TestSet").getAsJsonObject();
+        		JsonObject testCaseJsonObj = array.get(i).getAsJsonObject().get("TestCase").getAsJsonObject();
+        		String testSet = testSetJsonObj.get("FormattedID").getAsString();
+        		String testCase = testCaseJsonObj.get("FormattedID").getAsString();
+        		
+        		if(!testResultExists(testSet, testCase, date, testResults)) {
+        			testResult.setDate(date);
+        			testResult.setStatus(verdict);
+        			testResult.setTestCase(testCase);
+        			testResult.setTestSet(testSet);
+        			testResults.add(testResult);
+        			
+        			if(verdict.equalsIgnoreCase("error")) {
+            			error++;
+            		} else if(verdict.equalsIgnoreCase("pass")) {
+            			pass++;
+            		} else if(verdict.equalsIgnoreCase("fail")) {
+            			fail++;
+            		} else if(verdict.equalsIgnoreCase("inconclusive")) {
+            			inconclusive++;
+            		} else if(verdict.equalsIgnoreCase("blocked")) {
+            			blocked++;
+            		}
         		}
         	}
+        	for(TestResult result:testResults) {
+        		System.out.println(result.getTestSet()+"\t"+result.getTestCase()+"\t"+result.getStatus()+"\t"+result.getDate());
+            }
         }
         
         QueryRequest testCaseCount = new QueryRequest("TestSet");
@@ -422,9 +452,26 @@ public class TestClass {
         QueryResponse testCaseResponse = restApi.query(testCaseCount);
         int totalCount = 0;
         for(int i=0; i<testCaseResponse.getResults().size(); i++) {
+        	System.out.println(testCaseResponse.getResults().get(i).getAsJsonObject().get("FormattedID") + "\t" + testCaseResponse.getResults().get(i).getAsJsonObject().get("TestCaseCount").getAsInt());
         	totalCount = totalCount + testCaseResponse.getResults().get(i).getAsJsonObject().get("TestCaseCount").getAsInt();
         }
         System.out.println("Pass: "+pass+", Fail: "+fail+", Inconclusive: "+inconclusive+", Blocked: "+blocked+", Error: "+error + ", Total: "+ totalCount);
+    }
+    
+    private static boolean testResultExists(String testSet, String testCase, Date date, List<TestResult> testResults) {
+    	int index = 0;
+    	for(TestResult testResult:testResults) {
+    		if(testResult.getTestCase().equalsIgnoreCase(testCase) && testResult.getTestSet().equalsIgnoreCase(testSet)){
+    			if( testResult.getDate().after(date)) {
+    				return true;
+    			} else {
+    				testResults.remove(index);
+    				return false;
+    			}
+    		} 
+    		index++;
+    	}
+    	return false;
     }
     
     private static String testSetResultExists(RallyRestApi restApi, String testSetName, JsonArray results) throws IOException {
