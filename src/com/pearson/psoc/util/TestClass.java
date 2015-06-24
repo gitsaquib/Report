@@ -66,7 +66,7 @@ public class TestClass {
     	//retrieveTestResults(restApi);
     	//getIteration(restApi, "21028059357");
     	//getIteration(restApi, "23240411122");
-    	getUserStory(restApi);
+    	getUserStory(restApi, "US9510".split(","));
     	restApi.close();
     	//postJenkinsJob();
     }
@@ -126,12 +126,20 @@ public class TestClass {
     	}
     }
     
-    private static void getUserStory(RallyRestApi restApi) throws IOException, ParseException {
+    private static void getUserStory(RallyRestApi restApi, String[] userStories) throws IOException, ParseException {
     	QueryRequest storyRequest = new QueryRequest("HierarchicalRequirement");
         storyRequest.setLimit(1000);
         storyRequest.setScopedDown(true);
         storyRequest.setFetch(new Fetch("FormattedID","Name", "TestCases", "Priority", "Method"));
-        storyRequest.setQueryFilter((new QueryFilter("FormattedID", "=", "US9510")));
+        QueryFilter queryFilter = null;
+        for(String userStory:userStories) {
+	        if(queryFilter == null) {
+				queryFilter = new QueryFilter("FormattedID", "=", userStory);
+			} else {
+				queryFilter = queryFilter.or(new QueryFilter("Iteration", "=", userStory));
+			}
+        }
+        storyRequest.setQueryFilter(queryFilter);
         String wsapiVersion = "1.43";
         restApi.setWsapiVersion(wsapiVersion);
         QueryResponse testSetQueryResponse = restApi.query(storyRequest);
