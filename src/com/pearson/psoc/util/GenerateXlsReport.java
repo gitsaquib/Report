@@ -24,12 +24,12 @@ import org.jsoup.select.Elements;
 public class GenerateXlsReport {
 	
 	public static void main(String[] args) throws IOException {
-		File file  = new File("D:\\SeetestXlsReport\\AutomationRegressionReport_1.6.0.826_v3.xls");
+		File file  = new File("D:\\SeetestXlsReport\\AutomationRegressionReport_1.6.0.887_v2.xls");
 		file.createNewFile();
 		OutputStream out = new FileOutputStream(file);
 		short columnIndex = 2;
     	short columnWidth = 10000;
-    	File htmlsFolder = new File("D:\\Seetest Reports\\06-11\\");
+    	File htmlsFolder = new File("C:\\Users\\msaqib\\Downloads\\k1\\Regression result -12 june\\");
     	
     	FilenameFilter fileNameFilter = new FilenameFilter() {
     		   

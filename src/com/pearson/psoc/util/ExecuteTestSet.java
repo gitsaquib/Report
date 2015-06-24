@@ -8,7 +8,7 @@ import java.util.Set;
 public class ExecuteTestSet {
 
 	public static void main(String args[]) {
-		Configuration configuration = ExecuteTestSetUtil.readConfigFile();
+		/*Configuration configuration = ExecuteTestSetUtil.readConfigFile();
 		if(null != configuration) {
 			
 			Map<String, String> testCases = new HashMap<String, String>();
@@ -42,13 +42,13 @@ public class ExecuteTestSet {
 					}
 				}
 			}
-		}
-		/*try {
-			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\WinPSCAutomation\\Pearson.PSCWinAutomation.212App");
+		}*/
+		try {
+			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.212App");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		try {
+		/*try {
 			ExecuteTestSetUtil.getLoginDetails("D:\\Project\\PSoC\\code\\WinPSCAutomation\\Pearson.PSCWinAutomation.212App");
 		} catch (IOException e) {
 			e.printStackTrace();
