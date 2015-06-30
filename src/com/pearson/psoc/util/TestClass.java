@@ -1,6 +1,8 @@
 package com.pearson.psoc.util;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,7 +58,7 @@ public class TestClass {
         //K1: 23240411122
     	
     	RallyRestApi restApi = loginRally(); 
-    	//updateTestCaseResults(restApi);
+    	//updateTestCaseResults(restApi, "1.6.0.1143", "mohammed.saquib@pearson.com");
     	//updateTestSet(restApi);
     	//retrieveTestSets(restApi);
     	//retrieveTestSetsResult(restApi, "TS790,TS791,TS792,TS794,TS795,TS796,TS797,TS798,TS799,TS800,TS801");
@@ -66,19 +68,44 @@ public class TestClass {
     	//retrieveTestResults(restApi);
     	//getIteration(restApi, "21028059357");
     	//getIteration(restApi, "23240411122");
-    	getUserStory(restApi, "US9510".split(","));
+    	//getUserStory(restApi, "US9510".split(","));
+    	getTestDetails(restApi, "TC46083,TC46234,TC46236,TC46237,TC46238,TC43677,TC43683,TC43686,TC43687,TC43690,TC43831,TC43832,TC43835,TC44751,TC43673,TC45791,TC45795,TC45798,TC45806,TC46246,TC46248,TC43514,TC43515,TC43516,TC43517,TC43518,TC43519,TC43521,TC43513,TC43512,TC45209,TC43522,TC43523,TC43524,TC43525,TC43526,TC43527,TC43530,TC43844,TC43845,TC43846,TC43847,TC43848,TC43849,TC46054,TC46063,TC46065,TC46070,TC46056,TC45517,TC45518,TC45527,TC46249,TC45208,TC45209,TC45263,TC46653,TC46564,TC43856,TC43857,TC43850,TC43851,TC43855,TC43853,TC43852,TC43854".split(","));
     	restApi.close();
     	//postJenkinsJob();
     }
     
-    private static void updateTestCaseResults(RallyRestApi restApi) throws IOException {
-    	//Scanner sc=new Scanner(new FileReader("D:\\SeetestXlsReport\\Results\\Result_v8.txt"));
-    	Scanner sc=new Scanner(new FileReader("C:\\Users\\msaqib\\Downloads\\k1\\K1-7.txt"));
-        while (sc.hasNextLine()){
-        	String words[] = sc.nextLine().split("\t");
-            //updateTestCase(restApi, words[0], words[1], words[2], "2015-06-12T17:00:00.000Z", "1.6.0.826", "mohammed.saquib@pearson.com");
-            updateTestCase(restApi, words[0], words[1], words[2], "2015-06-16T10:30:00.000Z", "1.6.0.887", "aalmeen.khan@pearson.com");
-        }
+    private static void updateTestCaseResults(RallyRestApi restApi, String buildNumber, String userName) throws IOException {
+    	File inFolder = new File("D:\\Regression\\06262015\\in\\");
+    	FilenameFilter fileNameFilter = new FilenameFilter() {
+ 		   
+            @Override
+            public boolean accept(File dir, String name) {
+               if(name.lastIndexOf('.')>0)
+               {
+                  int lastIndex = name.lastIndexOf('.');
+                  String str = name.substring(lastIndex);
+                  if(str.equals(".txt"))
+                  {
+                     return true;
+                  }
+               }
+               return false;
+            }
+        };
+        Date curDate = new Date();
+    	File files[] = inFolder.listFiles(fileNameFilter);
+    	for(File file:files) {
+    		Scanner sc=new Scanner(new FileReader(file));
+	        while (sc.hasNextLine()){
+	        	String words[] = sc.nextLine().split("\t");
+	        	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"+".000Z");
+	    		String dateToStr = format.format(curDate);
+	            updateTestCase(restApi, words[0], words[1], words[2], dateToStr, buildNumber, userName);
+	        }
+	        sc.close();
+	        file.renameTo(new File("D:\\Regression\\06262015\\done\\"+file.getName()));
+    	}
+    	
     }
     
     private static void updateTestSet(RallyRestApi restApi) throws IOException {
@@ -273,7 +300,7 @@ public class TestClass {
         restApi.setWsapiVersion(wsapiVersion);
 
         testSetRequest.setFetch(new Fetch(new String[] {"Name", "Iteration", "Description", "TestCases", "Results", "FormattedID", "LastVerdict", "LastBuild", "LastRun", "Priority", "Method"}));
-        String testSetsString = "TS790,TS791,TS792,TS794,TS795,TS796,TS797,TS798,TS799,TS800,TS801";
+        String testSetsString = "TS832,TS833,TS834,TS835,TS836,TS837";
         String[] testSets = testSetsString.split(",");
         QueryFilter query = new QueryFilter("FormattedID", "=", "TS0");
         for(String testSet:testSets) {
@@ -636,6 +663,29 @@ public class TestClass {
     		}
     	}
     	return false;
+    }
+    
+    private static void getTestDetails(RallyRestApi restApi, String[] testCaseIds) throws IOException {
+    	for(String testCaseId:testCaseIds) {
+	    	QueryRequest testCaseRequest = new QueryRequest("TestCase");
+	        testCaseRequest.setQueryFilter(new QueryFilter("FormattedID", "=", testCaseId));
+	        QueryResponse testCaseQueryResponse = restApi.query(testCaseRequest);
+	        JsonObject object = testCaseQueryResponse.getResults().get(0).getAsJsonObject();
+	        String objective = object.get("Objective").getAsString();
+	        String method = object.get("Method").getAsString();
+	        String tag = "";
+	        JsonObject jsonObject = object.get("Tags").getAsJsonObject();
+	    	int numberOfTestCases = jsonObject.get("_tagsNameArray").getAsJsonArray().size();
+	        if(numberOfTestCases>0){
+	              for (int j=0;j<numberOfTestCases;j++){
+	        	  	JsonObject jsonObj = jsonObject.get("_tagsNameArray").getAsJsonArray().get(j).getAsJsonObject();
+	        	  	if(jsonObj.get("Name").getAsString().equals("Automation")) {
+	        	  		tag = "Automation";
+	        	  	}
+	             }
+	        }
+	        System.out.println(testCaseId+"\t"+objective+"\t"+method+"\t"+tag);
+    	}
     }
 
     static class PreemptiveAuth implements HttpRequestInterceptor {
