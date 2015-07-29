@@ -8,6 +8,7 @@ public class TestResult {
 	private String testCase;
 	private String testSet;
 	private Date date;
+	private String build;
 	
 	public String getStatus() {
 		return status;
@@ -33,7 +34,10 @@ public class TestResult {
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	
-	
-
+	public String getBuild() {
+		return build;
+	}
+	public void setBuild(String build) {
+		this.build = build;
+	}
 }

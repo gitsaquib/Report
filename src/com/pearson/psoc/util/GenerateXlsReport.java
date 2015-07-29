@@ -24,12 +24,13 @@ import org.jsoup.select.Elements;
 public class GenerateXlsReport {
 	
 	public static void main(String[] args) throws IOException {
-		File file  = new File("D:\\SeetestXlsReport\\AutomationRegressionReport_1.6.0.1143_v4.xls");
+		File file  = new File("D:\\SeetestXlsReport\\AutomationRegressionReport_1.6.0.1387_v3.xls");
 		file.createNewFile();
 		OutputStream out = new FileOutputStream(file);
 		short columnIndex = 2;
     	short columnWidth = 10000;
-    	File htmlsFolder = new File("D:\\Seetest Reports\\06-26\\");
+    	String roothPath = "D:\\Seetest Reports\\07-23\\";
+    	File htmlsFolder = new File(roothPath+"in\\");
     	
     	FilenameFilter fileNameFilter = new FilenameFilter() {
     		   
@@ -71,6 +72,7 @@ public class GenerateXlsReport {
 	    		headerCreated = true;
 	    	}
 	    	rowNum = createSheetData(sheet, wb, tableRowElements, rowNum);
+	    	html.renameTo(new File(roothPath+"done\\"+html.getName()));
     	}
     	wb.write(out);
     	out.close();
@@ -178,11 +180,12 @@ public class GenerateXlsReport {
 										testId, testCaseDesc, testCaseStatus,
 										testCaseExecutionStartDate, testCaseRunDuration);
 							} else if(testCaseToBeAdded > 0) {
-								sheet.removeRow(sheet.getRow(testCaseToBeAdded));
-								rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
-										testId, testCaseDesc, testCaseStatus,
-										testCaseExecutionStartDate, testCaseRunDuration);
-								
+								if(null != sheet.getRow(testCaseToBeAdded)) {
+									sheet.removeRow(sheet.getRow(testCaseToBeAdded));
+									rowNum = addRow(rowNum, style, testCasesMap, row, cellNum,
+											testId, testCaseDesc, testCaseStatus,
+											testCaseExecutionStartDate, testCaseRunDuration);
+								}
 							}
 						}
 					}
