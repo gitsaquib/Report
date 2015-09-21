@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -239,7 +240,7 @@ public class ExecuteTestSetUtil {
 	}
 	
 	public static Map<String, String> readInputFile(String inputSheet) throws IOException {
-		Map<String, String> testCases = new HashMap<String, String>();
+		Map<String, String> testCases = new LinkedHashMap<String, String>();
 		File myFile = new File(inputSheet);
         FileInputStream fis = new FileInputStream(myFile);
         HSSFWorkbook myWorkBook = new HSSFWorkbook (fis);

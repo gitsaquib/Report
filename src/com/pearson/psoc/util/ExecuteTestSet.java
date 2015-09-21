@@ -8,7 +8,7 @@ import java.util.Set;
 public class ExecuteTestSet {
 
 	public static void main(String args[]) {
-		/*Configuration configuration = ExecuteTestSetUtil.readConfigFile();
+		Configuration configuration = ExecuteTestSetUtil.readConfigFile();
 		if(null != configuration) {
 			
 			Map<String, String> testCases = new HashMap<String, String>();
@@ -25,7 +25,7 @@ public class ExecuteTestSet {
 				String status = executeCommand(testMethodName, configuration);
 				if(!status.equals("Passed")) {
 					countOfRun++;
-					status = executeCommand(testMethodName, configuration);
+					//status = executeCommand(testMethodName, configuration);
 					System.out.println(testCaseId+"\t"+status+"\t"+"Retry");
 				} else {
 					System.out.println(testCaseId+"\t"+status);
@@ -42,12 +42,12 @@ public class ExecuteTestSet {
 					}
 				}
 			}
-		}*/
-		try {
+		}
+		/*try {
 			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.212App");
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 		/*try {
 			ExecuteTestSetUtil.getLoginDetails("D:\\Project\\PSoC\\code\\WinPSCAutomation\\Pearson.PSCWinAutomation.212App");
 		} catch (IOException e) {
