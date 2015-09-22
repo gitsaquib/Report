@@ -58,12 +58,13 @@ public class TestClass {
         //K1: 23240411122
     	//Content: 18146085650
     	
-    	RallyRestApi restApi = loginRally(); 
-    	//createTestSet(restApi, "TS985", "D:\\Regression");
+    	RallyRestApi restApi = loginRally();
+    	readTrxFile(restApi, "", "", "D:\\Regression\\trx\\");
+    	//createTestSet(restApi, "TS988", "D:\\Regression");
     	//updateTestCaseResults(restApi, "1.6.0.5138", "mohammed.saquib@pearson.com", "D:\\Regression\\08312015\\212iOS\\");
     	//updateTestCaseResults(restApi, "1.6.0.1045", "madhav.purohit@pearson.com", "D:\\Regression\\08192015\\212Win\\");
     	//updateTestCaseResults(restApi, "1.6.0.1141", "madhav.purohit@pearson.com", "D:\\Regression\\08192015\\K1Win\\");
-    	//updateTestCaseResults(restApi, "1.6.0.1075", "aalmeen.khan@pearson.com", "D:\\Regression\\08192015\\K1iOS\\");
+    	//updateTestCaseResults(restApi, "1.6.01162", "lakshmi.brunda@pearson.com", "D:\\Regression\\08192015\\K1iOS\\");
     	//updateTestSet(restApi);
     	//retrieveTestSets(restApi, "TS979", "21028059357");
     	//retrieveTestSets(restApi, "TS983", "23240411122");
@@ -204,6 +205,56 @@ public class TestClass {
     	
     }
     
+    
+    private static void readTrxFile(RallyRestApi restApi, String buildNumber, String userName, String path) throws IOException {
+    	File inFolder = new File(path+"in\\");
+    	FilenameFilter fileNameFilter = new FilenameFilter() {
+ 		   
+            @Override
+            public boolean accept(File dir, String name) {
+               if(name.lastIndexOf('.')>0)
+               {
+                  int lastIndex = name.lastIndexOf('.');
+                  String str = name.substring(lastIndex);
+                  if(str.equals(".txt"))
+                  {
+                     return true;
+                  }
+               }
+               return false;
+            }
+        };
+        Date curDate = new Date();
+    	File files[] = inFolder.listFiles(fileNameFilter);
+    	for(File file:files) {
+    		Scanner sc=new Scanner(new FileReader(file));
+	        while (sc.hasNextLine()){
+	        	String line = sc.nextLine();
+	        	String testCases = "";
+	        	String status = "";
+	        	if(line.contains("Passed")) {
+	        		testCases = line.substring(0, line.indexOf("Passed")).trim();
+	        		status = "Pass";
+	        	} else if(line.contains("Failed")) {
+	        		testCases = line.substring(0, line.indexOf("Failed")).trim();
+	        		status = "Fail";
+	        	} else {
+	        		continue;
+	        	}
+	        	String testCaseIds[] = testCases.split(",");
+	        	for(String testCaseId:testCaseIds) {
+	        		System.out.println("TC"+testCaseId + "\t" + status);
+	        	}
+	        	/*String words[] = sc.nextLine().split("\t");
+	        	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"+".000Z");
+	    		String dateToStr = format.format(curDate);
+	            updateTestCase(restApi, words[0], words[1], words[2], dateToStr, buildNumber, userName);*/
+	        }
+	        sc.close();
+	        file.renameTo(new File(path+"done\\"+file.getName()));
+    	}
+    	
+    }
     private static void updateTestSet(RallyRestApi restApi, String testSetId, String testCaseIds[]) throws IOException {
     	QueryRequest testCaseRequest = new QueryRequest("TestCase");
         testCaseRequest.setFetch(new Fetch("FormattedID","Name"));
