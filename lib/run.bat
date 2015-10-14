@@ -1,0 +1,1 @@
+java -cp config.properties;executetests.jar;gson-2.2.4-javadoc.jar;gson-2.2.4-sources.jar;gson-2.2.4.jar;httpclient-4.2.5.jar;httpclient-cache-4.2.5.jar;httpcore-4.2.4.jar;httpmime-4.2.5.jar;jsoup-1.8.1.jar;poi-2.5.1.jar;rally-rest-api-2.1.1.jar;test.bat com.pearson.psoc.util.ExecuteTestSet
