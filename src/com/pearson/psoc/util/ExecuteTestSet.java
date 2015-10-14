@@ -8,7 +8,7 @@ import java.util.Set;
 public class ExecuteTestSet {
 
 	public static void main(String args[]) {
-		Configuration configuration = ExecuteTestSetUtil.readConfigFile();
+		/*Configuration configuration = ExecuteTestSetUtil.readConfigFile();
 		if(null != configuration) {
 			
 			Map<String, String> testCases = new HashMap<String, String>();
@@ -26,10 +26,11 @@ public class ExecuteTestSet {
 				if(!status.equals("Passed")) {
 					countOfRun++;
 					//status = executeCommand(testMethodName, configuration);
-					System.out.println(testCaseId+"\t"+status+"\t"+"Retry");
+					System.out.println(testCaseId+"\t"+testMethodName+"\t"+status);
 				} else {
-					System.out.println(testCaseId+"\t"+status);
+					System.out.println(testCaseId+"\t"+testMethodName+"\t"+status);
 				}
+				
 				if(configuration.getRestartSeetest().equalsIgnoreCase("true")) 
 				{
 					if(countOfRun == Integer.parseInt(configuration.getRunCount())) {
@@ -42,12 +43,12 @@ public class ExecuteTestSet {
 					}
 				}
 			}
-		}
-		/*try {
-			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\SeeTestAutomation\\Pearson.PSCAutomation.212App");
+		}*/
+		try {
+			ExecuteTestSetUtil.getTestCasesDetails("D:\\Project\\PSoC\\code\\Win\\WinPSCAutomation\\Pearson.PSCWinAutomation.K1App");
 		} catch (IOException e) {
 			e.printStackTrace();
-		}*/
+		}
 		/*try {
 			ExecuteTestSetUtil.getLoginDetails("D:\\Project\\PSoC\\code\\WinPSCAutomation\\Pearson.PSCWinAutomation.212App");
 		} catch (IOException e) {

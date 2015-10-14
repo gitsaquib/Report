@@ -59,15 +59,15 @@ public class TestClass {
     	//Content: 18146085650
     	
     	RallyRestApi restApi = loginRally();
-    	readTrxFile(restApi, "", "", "D:\\Regression\\trx\\");
-    	//createTestSet(restApi, "TS988", "D:\\Regression");
-    	//updateTestCaseResults(restApi, "1.6.0.5138", "mohammed.saquib@pearson.com", "D:\\Regression\\08312015\\212iOS\\");
+    	//readTrxFile(restApi, "D:\\Regression\\trx\\");
+    	createTestSet(restApi, "TS1008", "D:\\Regression");
+    	//updateTestCaseResults(restApi, "F-MV-TH_1.6.0.5882", "godwin.terence@pearson.com", "D:\\Regression\\08192015\\212iOS\\");
     	//updateTestCaseResults(restApi, "1.6.0.1045", "madhav.purohit@pearson.com", "D:\\Regression\\08192015\\212Win\\");
-    	//updateTestCaseResults(restApi, "1.6.0.1141", "madhav.purohit@pearson.com", "D:\\Regression\\08192015\\K1Win\\");
-    	//updateTestCaseResults(restApi, "1.6.01162", "lakshmi.brunda@pearson.com", "D:\\Regression\\08192015\\K1iOS\\");
+    	//updateTestCaseResults(restApi, "1.6.0.1297", "madhav.purohit@pearson.com", "D:\\Regression\\08192015\\K1Win\\");
+    	//updateTestCaseResults(restApi, "1.6.0.1326", "lakshmi.brunda@pearson.com", "D:\\Regression\\08192015\\K1iOS\\");
     	//updateTestSet(restApi);
-    	//retrieveTestSets(restApi, "TS979", "21028059357");
-    	//retrieveTestSets(restApi, "TS983", "23240411122");
+    	//retrieveTestSets(restApi, "TS1002", "21028059357");
+    	//retrieveTestSets(restApi, "TS994", "23240411122");
     	//retrieveTestSetsResult(restApi, "TS846");
     	//retrieveTestCases(restApi);
     	//retrieveDefects(restApi);
@@ -75,7 +75,7 @@ public class TestClass {
     	//retrieveTestResults(restApi, "TS941", true);
     	//getIteration(restApi, "21028059357");
     	//getIteration(restApi, "23240411122");
-    	//getUserStory(restApi, "US10326,US10229".split(","));
+    	//getUserStory(restApi, "US10597,US10418,US10425,US10419,US10325,US10230,US10226".split(","));
     	//getTestDetails(restApi, "TC52657,TC52652,TC52677,TC52734,TC52587,TC52669,TC52593,TC52647,TC52675".split(","));
     	//getContentTestCases(restApi, "21028059357");
     	//retrieveTestFolder(restApi, "21028059357", "TF1212");
@@ -206,7 +206,7 @@ public class TestClass {
     }
     
     
-    private static void readTrxFile(RallyRestApi restApi, String buildNumber, String userName, String path) throws IOException {
+    private static void readTrxFile(RallyRestApi restApi, String path) throws IOException {
     	File inFolder = new File(path+"in\\");
     	FilenameFilter fileNameFilter = new FilenameFilter() {
  		   
@@ -789,10 +789,10 @@ public class TestClass {
 	private static void retrieveDefects(RallyRestApi restApi)
 			throws IOException {
 		
-		QueryFilter queryFilter = new QueryFilter("FormattedID", "=", "DE8485");
+		QueryFilter queryFilter = new QueryFilter("FormattedID", "=", "DE11165");
     	QueryRequest defectRequest = new QueryRequest("defects");
     	defectRequest.setQueryFilter(queryFilter);
-    	defectRequest.setFetch(new Fetch("State", "Name", "Tags", "Platform", "Release", "FormattedID", "Environment", "Priority", "LastUpdateDate", "SubmittedBy", "Owner", "Project", "ClosedDate"));
+    	defectRequest.setFetch(new Fetch("State", "Name", "Tags", "Platform", "Release", "Components",  "FormattedID", "Environment", "Priority", "LastUpdateDate", "SubmittedBy", "Owner", "Project", "ClosedDate"));
     	defectRequest.setProject("/project/23240411122"); 
     	defectRequest.setScopedDown(true);
     	QueryResponse projectDefects = restApi.query(defectRequest);
@@ -808,10 +808,11 @@ public class TestClass {
                 if(numberOfTestCases>0){
                       for (int j=0;j<numberOfTestCases;j++){
 	            	  	JsonObject jsonObj = jsonObject.get("_tagsNameArray").getAsJsonArray().get(j).getAsJsonObject();
-	            	  	System.out.println(jsonObj.get("Name"));
+	            	  	//System.out.println(jsonObj.get("Name"));
                      }
                 }
             }
+            System.out.println(object.get("c_Components").getAsString());
     	}
 	}
     

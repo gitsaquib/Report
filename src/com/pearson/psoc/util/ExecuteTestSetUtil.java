@@ -185,9 +185,11 @@ public class ExecuteTestSetUtil {
 	        while(null != line && !line.trim().startsWith("public")) {
 	        	line = rdr.readLine();
 	        } 
-	        line = line.replace("public void", "").trim().replace("()", "");
+	        if(null != line) {
+	        	line = line.replace("public void", "").trim().replace("()", "");
+	        }
 	    } finally {
-	        
+
 	    }
 	    return line;
 	}
