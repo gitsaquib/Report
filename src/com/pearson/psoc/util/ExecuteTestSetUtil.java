@@ -220,9 +220,14 @@ public class ExecuteTestSetUtil {
 	
 	public static void restartSeetest(String serviceName) throws Exception {
 		killProcess(serviceName.substring(serviceName.lastIndexOf("\\")+1));
-		Thread.sleep(30000);
+		Thread.sleep(90000);
+		if(isProcessRunning(serviceName)) {
+			Thread.sleep(60000);	
+		}
 		startProcess(serviceName);
-		Thread.sleep(30000);
+		if(!isProcessRunning(serviceName)) {
+			Thread.sleep(30000);
+		}
 	}
 	
 
