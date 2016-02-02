@@ -33,7 +33,7 @@ public class ExecuteTestSetUtil {
 		try {
 			proc = rt.exec(commands);
 		} catch (IOException e) {
-			System.out.println("1. Error while executing test: "+testMethodName);
+			System.out.println("1. Error while executing test: "+e.getMessage());
 		}
 		BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 		String s = null;
@@ -46,13 +46,14 @@ public class ExecuteTestSetUtil {
 				lineNum++;
 			}
 		} catch (IOException e) {
-			System.out.println("2. Error while executing test: "+testMethodName);
+			System.out.println("2. Error while executing test: "+e.getMessage());
 		}
 		if(s != null) {
 			if(s.startsWith("Pass")) {
 				status = "Passed";
 			} else if(s.startsWith("Fail")) {
 				status = "Failed";
+				System.out.println(testMethodName+"\t"+s);
 			}
 		}
 		return status;

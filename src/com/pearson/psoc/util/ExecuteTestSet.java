@@ -22,11 +22,11 @@ public class ExecuteTestSet {
 			for(String testCaseId:testCaseIds) {
 				String testMethodName = testCases.get(testCaseId);
 				countOfRun++;
-				Thread.sleep(4000);
+				Thread.sleep(15000);
 				String status = executeCommand(testMethodName, configuration);
 				if(!status.equals("Passed")) {
-					//countOfRun++;
-					//status = executeCommand(testMethodName, configuration);
+					countOfRun++;
+					status = executeCommand(testMethodName, configuration);
 					System.out.println(testCaseId+"\t"+status+"\t"+testMethodName);
 				} else {
 					System.out.println(testCaseId+"\t"+status+"\t"+testMethodName);
