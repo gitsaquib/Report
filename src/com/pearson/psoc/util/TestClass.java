@@ -40,7 +40,7 @@ public class TestClass {
     	
     	RallyRestApi restApi = loginRally();
     	//exportTestCases(restApi);
-    	//retrieveSteps(restApi, "TC19380");
+    	retrieveSteps(restApi);
     	//retrieveTestCaseMethodDetails(restApi, "D:\\Assessment TC Analysis\\");
     	//clearTestSet(restApi, "TS1058");
     	//readTrxFile(restApi, "D:\\Regression\\trx\\");
@@ -67,7 +67,7 @@ public class TestClass {
     	//getUserStory(restApi, "US9167,US9168,US9738".split(","));
     	//getTestDetails(restApi, "TC19380".split(","));
     	//getContentTestCases(restApi, "21028059357");
-    	retrieveTestFolder(restApi, "21028059357", "TF1237,TF1242,TF1244,TF1246");
+    	//retrieveTestFolder(restApi, "21028059357", "TF1237,TF1242,TF1244,TF1246");
     	restApi.close();
     	//postJenkinsJob();
     }
@@ -901,9 +901,10 @@ public class TestClass {
     	String wsapiVersion = "1.43";
         restApi.setWsapiVersion(wsapiVersion);
     	QueryRequest testCaseRequest = new QueryRequest("TestCase");
-    	QueryFilter filter = new QueryFilter("Deprecated", "=", "false");
+    	/*QueryFilter filter = new QueryFilter("Deprecated", "=", "false");
     	filter = filter.and(new QueryFilter("Type", "!=", "Regression"));
-    	filter = filter.and(new QueryFilter("CreationDate", ">=", "2014-11-05"));
+    	filter = filter.and(new QueryFilter("CreationDate", ">=", "2014-11-05"));*/
+    	QueryFilter filter = new QueryFilter("FormattedID", "=", "TC20418");
         testCaseRequest.setQueryFilter(filter);
         testCaseRequest.setLimit(10000);
         
@@ -1187,17 +1188,39 @@ public class TestClass {
         }
     }
     
-    private static String retrieveSteps(RallyRestApi restApi, String steps) throws IOException, ParseException {
-    	QueryRequest storyRequest = new QueryRequest("TestCaseStep");
-        storyRequest.setScopedDown(true);
-        QueryFilter queryFilter = new QueryFilter("TestCase.FormattedID", "=", steps);
-        storyRequest.setQueryFilter(queryFilter);
-        String wsapiVersion = "1.43";
+    private static String retrieveSteps(RallyRestApi restApi) throws IOException, ParseException {
+    	String wsapiVersion = "1.43";
         restApi.setWsapiVersion(wsapiVersion);
-        QueryResponse testSetQueryResponse = restApi.query(storyRequest);
-        if(testSetQueryResponse.getResults().size() > 0) {
-        	JsonObject testSetJsonObject = testSetQueryResponse.getResults().get(0).getAsJsonObject();
-        	return testSetJsonObject.get("FormattedID").getAsString()+": "+testSetJsonObject.get("Name").getAsString();
+        QueryRequest testCaseRequest = new QueryRequest("TestCase");
+        testCaseRequest.setQueryFilter(new QueryFilter("FormattedID", "=", "TC20482"));
+        QueryResponse testCaseQueryResponse = restApi.query(testCaseRequest);
+        JsonArray array = testCaseQueryResponse.getResults();
+        int numberTestCaseResults = array.size();
+        if(numberTestCaseResults >0) {
+        	for(int i=0; i<numberTestCaseResults; i++) {
+        		JsonObject object = testCaseQueryResponse.getResults().get(i).getAsJsonObject();
+        		if(null != object.get("Steps") && !object.get("Steps").isJsonNull()) {
+           	  		JsonArray stepsObj = object.get("Steps").getAsJsonArray();
+	                for(int j=0; j<stepsObj.size(); j++) {
+	                	JsonElement elements =  stepsObj.get(j);
+	            		JsonObject step = elements.getAsJsonObject();
+	            		String ref = step.get("_ref").getAsString();
+	            		ref = ref.substring(ref.indexOf("/testcasestep/")).replace(".js", "").replace("/testcasestep/", "");
+	            		testCaseRequest = new QueryRequest("TestCaseStep");
+	                    testCaseRequest.setQueryFilter(new QueryFilter("ObjectID", "=", ref));
+	                    testCaseQueryResponse = restApi.query(testCaseRequest);
+	                    int numberTestSteps = array.size();
+	                    if(numberTestSteps >0) {
+	                    	for(int k=0; k<numberTestSteps; k++) {
+	                    		JsonObject stepObject = testCaseQueryResponse.getResults().get(k).getAsJsonObject();
+	                    		System.out.println(stepObject.get("StepIndex").getAsInt() 
+	                    				+ "\t" +stepObject.get("Input").getAsString()
+	                    				+ "\t" +stepObject.get("ExpectedResult").getAsString());
+	                    	}
+	                    }
+	                }
+        		}
+        	}
         }
         return "";
     }

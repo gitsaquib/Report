@@ -53,7 +53,7 @@ public class ExecuteTestSetUtil {
 				status = "Passed";
 			} else if(s.startsWith("Fail")) {
 				status = "Failed";
-				System.out.println(testMethodName+"\t"+s);
+				//System.out.println(testMethodName+"\t"+s);
 			}
 		}
 		return status;
