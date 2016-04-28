@@ -20,14 +20,8 @@
 	<classpathentry kind="lib" path="D:/workspace/jiralib/com.sun.jersey.jersey-core-1.4.0.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/jiralib/commons-codec-1.10.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/jiralib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jersey-apache-client-1.6.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jersey-client.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jettison-1.2.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jira-rest-java-client-0.5.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/jiralib/org.apache.commons.httpclient.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/google-collections-1.0-rc2.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/lib/jira-rest-java-client-api-2.0.0-m19.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/lib/jira-rest-java-client-core-2.0.0-m23.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/atlassian-util-concurrent-2.4.1.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/sal-api-2.7.1.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/atlassian-event-2.0.3.jar"/>
@@ -50,5 +44,6 @@
 	<classpathentry kind="lib" path="D:/workspace/lib/httpcore-nio-4.2.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/httpcore-nio-4.3-beta2.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/httpmime-4.2.5.jar"/>
+	<classpathentry kind="lib" path="D:/workspace/jiralib/jira-rest-java-client-0.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

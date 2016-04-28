@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Scanner;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -247,7 +248,7 @@ public class ExecuteTestSetUtil {
 		}*/
 	}
 	
-	public static Map<String, String> readInputFile(String inputSheet) throws IOException {
+	public static Map<String, String> readXlsInputFile(String inputSheet) throws IOException {
 		Map<String, String> testCases = new LinkedHashMap<String, String>();
 		File myFile = new File(inputSheet);
         FileInputStream fis = new FileInputStream(myFile);
@@ -256,8 +257,21 @@ public class ExecuteTestSetUtil {
         Iterator<HSSFRow> rowIterator = mySheet.rowIterator();
         while (rowIterator.hasNext()) {
         	HSSFRow row = rowIterator.next();
-        	testCases.put(row.getCell(Short.parseShort("0")).getStringCellValue(), row.getCell(Short.parseShort("1")).getStringCellValue());
+        	testCases.put(""+(row.getCell(Short.parseShort("0")).getNumericCellValue()), row.getCell(Short.parseShort("1")).getStringCellValue());
         }
+        return testCases;
+	}
+	
+	public static Map<String, String> readTabDelimitedInputFile(String inputSheet) throws IOException {
+		Map<String, String> testCases = new LinkedHashMap<String, String>();
+		File myFile = new File(inputSheet);
+        Scanner scan = new Scanner(myFile);
+        String line="";
+        while (scan.hasNextLine()) {
+            line = scan.nextLine();
+            String[] split=line.split("\t");
+            testCases.put(split[0], split[1]);
+        } 
         return testCases;
 	}
 
