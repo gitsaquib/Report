@@ -1,6 +1,7 @@
 package com.pearson.psoc.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -14,6 +15,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.jsoup.Jsoup;
 
 import com.google.gson.JsonArray;
@@ -40,7 +48,7 @@ public class TestClass {
     	
     	RallyRestApi restApi = loginRally();
     	//exportTestCases(restApi);
-    	retrieveSteps(restApi);
+    	//retrieveSteps(restApi, "D:\\input\\");
     	//retrieveTestCaseMethodDetails(restApi, "D:\\Assessment TC Analysis\\");
     	//clearTestSet(restApi, "TS1058");
     	//readTrxFile(restApi, "D:\\Regression\\trx\\");
@@ -67,7 +75,7 @@ public class TestClass {
     	//getUserStory(restApi, "US9167,US9168,US9738".split(","));
     	//getTestDetails(restApi, "TC19380".split(","));
     	//getContentTestCases(restApi, "21028059357");
-    	//retrieveTestFolder(restApi, "21028059357", "TF1237,TF1242,TF1244,TF1246");
+    	retrieveTestFolder(restApi, "21028059357", "TF739, TF740, TF741, TF742, TF743, TF744, TF746, TF747, TF748, TF749, TF750, TF751, TF752, TF753, TF754");
     	restApi.close();
     	//postJenkinsJob();
     }
@@ -534,7 +542,7 @@ public class TestClass {
     	String wsapiVersion = "1.43";
         restApi.setWsapiVersion(wsapiVersion);
     	QueryResponse testFolder = restApi.query(defectRequest);
-        int ij = 0;
+        int ij = 1;
         for (int i=0; i<testFolder.getResults().size();i++){
             JsonObject testFolderJsonObject = testFolder.getResults().get(i).getAsJsonObject();
 	        int numberOfTestCases = testFolderJsonObject.get("TestCases").getAsJsonArray().size();
@@ -547,7 +555,7 @@ public class TestClass {
 	               	  		userStory = workProductObj.get("FormattedID").getAsString()+": "+workProductObj.get("Name").getAsString();
 	               	  	}
 	               	  	
-	            	  	System.out.println((ij)+"\t"+ jsonObject.get("FormattedID") +"\t" + jsonObject.get("Name") +"\t" + userStory+"\t" + jsonObject.get("Priority"));
+	            	  	System.out.println((ij)+"\t"+testFolderJsonObject.get("Name").getAsString()+ "\t"+ jsonObject.get("FormattedID") +"\t" + jsonObject.get("Name") +"\t" + userStory+"\t" + jsonObject.get("Priority"));
 	            	  	ij++;
 	             }
 	        }
@@ -1188,41 +1196,117 @@ public class TestClass {
         }
     }
     
-    private static String retrieveSteps(RallyRestApi restApi) throws IOException, ParseException {
+    private static void retrieveSteps(RallyRestApi restApi, String rootFolder) throws IOException, ParseException {
     	String wsapiVersion = "1.43";
         restApi.setWsapiVersion(wsapiVersion);
-        QueryRequest testCaseRequest = new QueryRequest("TestCase");
-        testCaseRequest.setQueryFilter(new QueryFilter("FormattedID", "=", "TC20482"));
-        QueryResponse testCaseQueryResponse = restApi.query(testCaseRequest);
-        JsonArray array = testCaseQueryResponse.getResults();
-        int numberTestCaseResults = array.size();
-        if(numberTestCaseResults >0) {
-        	for(int i=0; i<numberTestCaseResults; i++) {
-        		JsonObject object = testCaseQueryResponse.getResults().get(i).getAsJsonObject();
-        		if(null != object.get("Steps") && !object.get("Steps").isJsonNull()) {
-           	  		JsonArray stepsObj = object.get("Steps").getAsJsonArray();
-	                for(int j=0; j<stepsObj.size(); j++) {
-	                	JsonElement elements =  stepsObj.get(j);
-	            		JsonObject step = elements.getAsJsonObject();
-	            		String ref = step.get("_ref").getAsString();
-	            		ref = ref.substring(ref.indexOf("/testcasestep/")).replace(".js", "").replace("/testcasestep/", "");
-	            		testCaseRequest = new QueryRequest("TestCaseStep");
-	                    testCaseRequest.setQueryFilter(new QueryFilter("ObjectID", "=", ref));
-	                    testCaseQueryResponse = restApi.query(testCaseRequest);
-	                    int numberTestSteps = array.size();
-	                    if(numberTestSteps >0) {
-	                    	for(int k=0; k<numberTestSteps; k++) {
-	                    		JsonObject stepObject = testCaseQueryResponse.getResults().get(k).getAsJsonObject();
-	                    		System.out.println(stepObject.get("StepIndex").getAsInt() 
-	                    				+ "\t" +stepObject.get("Input").getAsString()
-	                    				+ "\t" +stepObject.get("ExpectedResult").getAsString());
-	                    	}
-	                    }
-	                }
-        		}
-        	}
-        }
-        return "";
+        
+        File inFolder = new File(rootFolder+File.separator+"in"+File.separator);
+    	FilenameFilter fileNameFilter = new FilenameFilter() {
+ 		   
+            @Override
+            public boolean accept(File dir, String name) {
+               if(name.lastIndexOf('.')>0)
+               {
+                  int lastIndex = name.lastIndexOf('.');
+                  String str = name.substring(lastIndex);
+                  if(str.equals(".txt"))
+                  {
+                     return true;
+                  }
+               }
+               return false;
+            }
+        };
+    	File files[] = inFolder.listFiles(fileNameFilter);
+    	for(File file:files) {
+    		HSSFWorkbook workbook = new HSSFWorkbook();
+        	HSSFSheet sheet = workbook.createSheet();
+        	HSSFFont font = workbook.createFont();
+    		font.setFontName("Trebuchet MS");
+    		HSSFCellStyle style = workbook.createCellStyle();
+            style.setFont(font);
+            style.setWrapText(true);
+            style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+            style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+            style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+            style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+            style.setAlignment(HSSFCellStyle.ALIGN_LEFT);
+            style.setVerticalAlignment(HSSFCellStyle.VERTICAL_TOP);
+    		Scanner sc=new Scanner(new FileReader(file));
+    		int rowNum = 1;
+    		while (sc.hasNextLine()){
+	        	String testCaseId = sc.nextLine();
+	        	QueryRequest testCaseRequest = new QueryRequest("TestCase");
+	            testCaseRequest.setQueryFilter(new QueryFilter("FormattedID", "=", testCaseId));
+	            QueryResponse testCaseQueryResponse = restApi.query(testCaseRequest);
+	            JsonArray array = testCaseQueryResponse.getResults();
+	            int numberTestCaseResults = array.size();
+	            short nextColor = HSSFColor.WHITE.index;
+	            if(numberTestCaseResults >0) {
+	            	for(int i=0; i<numberTestCaseResults; i++) {
+	            		if(nextColor == HSSFColor.LIGHT_BLUE.index) {
+	            			style.setFillForegroundColor(HSSFColor.LIGHT_BLUE.index);
+	            			nextColor = HSSFColor.WHITE.index;
+	            		} else {
+	            			style.setFillBackgroundColor(HSSFColor.WHITE.index);
+	            			nextColor = HSSFColor.LIGHT_BLUE.index;
+	            		}
+	            		
+	            		JsonObject object = testCaseQueryResponse.getResults().get(i).getAsJsonObject();
+	            		if(null != object.get("Steps") && !object.get("Steps").isJsonNull()) {
+	               	  		JsonArray stepsObj = object.get("Steps").getAsJsonArray();
+	    	                for(int j=0; j<stepsObj.size(); j++) {
+	    	                	JsonElement elements =  stepsObj.get(j);
+	    	            		JsonObject step = elements.getAsJsonObject();
+	    	            		String ref = step.get("_ref").getAsString();
+	    	            		ref = ref.substring(ref.indexOf("/testcasestep/")).replace(".js", "").replace("/testcasestep/", "");
+	    	            		testCaseRequest = new QueryRequest("TestCaseStep");
+	    	                    testCaseRequest.setQueryFilter(new QueryFilter("ObjectID", "=", ref));
+	    	                    testCaseQueryResponse = restApi.query(testCaseRequest);
+	    	                    int numberTestSteps = array.size();
+	    	                    if(numberTestSteps >0) {
+	    	                    	for(int k=0; k<numberTestSteps; k++) {
+	    	                    		JsonObject stepObject = testCaseQueryResponse.getResults().get(k).getAsJsonObject();
+	    	                    		if(null != stepObject.get("StepIndex") && !stepObject.get("StepIndex").isJsonNull()) {
+	    		                    		HSSFRow row = sheet.createRow(rowNum);
+	    		                    		short cellNum = 0;
+
+	    		                    		HSSFCell cell = row.createCell(cellNum);
+	    		                			cell.setCellStyle(style);
+	    		                			cell.setCellValue(testCaseId);
+	    		                			cellNum++;
+	    		                			
+	    		                    		cell = row.createCell(cellNum);
+	    		                			cell.setCellStyle(style);
+	    		                			cell.setCellValue(stepObject.get("StepIndex").getAsInt()+1);
+	    		                			cellNum++;
+	    		                			
+	    		                			cell = row.createCell(cellNum);
+	    		                			cell.setCellStyle(style);
+	    		                			cell.setCellValue(stepObject.get("Input").getAsString());
+	    		                			cellNum++;
+	    		                			
+	    		                			cell = row.createCell(cellNum);
+	    		                			cell.setCellStyle(style);
+	    		                			cell.setCellValue(stepObject.get("ExpectedResult").getAsString());
+	    		                			cellNum++;
+	    		                    		rowNum++;
+	    	                    		}
+	    	                    	}
+	    	                    }
+	    	                }
+	            		}
+	            	}
+	            }
+	        }
+	        sc.close();
+	        SimpleDateFormat formatter = new SimpleDateFormat("dd-mm-yy");
+	    	Date today = new Date();
+	    	String dateStr = formatter.format(today);
+	    	FileOutputStream outputStream = new FileOutputStream(file.getName()+dateStr+".xls");
+	    	file.renameTo(new File(file.getAbsolutePath().replace("txt", "done")));
+	        workbook.write(outputStream);
+    	}
     }
 }
 

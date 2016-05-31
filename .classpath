@@ -17,14 +17,6 @@
 	<classpathentry exported="true" kind="lib" path="D:/workspace/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/workspace/lib/commons-logging-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="D:/workspace/lib/commons-validator-1.3.1.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/com.sun.jersey.jersey-core-1.4.0.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/commons-codec-1.10.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jersey-apache-client-1.6.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jersey-client.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jettison-1.2.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/jira-rest-java-client-0.5.jar"/>
-	<classpathentry kind="lib" path="D:/workspace/jiralib/org.apache.commons.httpclient.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/google-collections-1.0-rc2.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/jira-rest-java-client-api-2.0.0-m19.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/lib/jira-rest-java-client-core-2.0.0-m23.jar"/>
